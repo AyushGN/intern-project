@@ -9,6 +9,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, name, role } = req.body;
 
+    // Normalize role to uppercase enum value
+    const normalizedRole = (role || 'CONSUMER').toUpperCase();
+
     // Check if user exists
     const { data: existingUser, error: checkError } = await supabase
       .from('users')
@@ -33,7 +36,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           email,
           password: hashedPassword,
           name,
-          role: role || 'CONSUMER',
+          role: normalizedRole,
         },
       ])
       .select('id, email, name, role')
