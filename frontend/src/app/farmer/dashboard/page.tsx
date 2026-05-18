@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Package, Plus, Edit2, Trash2, Loader2, TrendingUp, ShoppingCart, DollarSign, Clock, CheckCircle, Truck, MapPin } from 'lucide-react';
+import { Package, Plus, Edit2, Trash2, Loader2, TrendingUp, ShoppingCart, DollarSign, Clock, CheckCircle, Truck, MapPin, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
