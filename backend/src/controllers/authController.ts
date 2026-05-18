@@ -46,7 +46,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       expiresIn: '7d',
     });
 
-    res.status(201).json({ user: newUser, token });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(201).json({ user: newUser });
   } catch (error: any) {
     console.error('Registration Error:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -82,12 +89,56 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       expiresIn: '7d',
     });
 
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     // Remove password before sending to client
     const { password: _, ...userWithoutPassword } = user;
 
-    res.status(200).json({ user: userWithoutPassword, token });
+    res.status(200).json({ user: userWithoutPassword });
   } catch (error: any) {
     console.error('Login Error:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
+};
+
+export const checkAuth = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(401).json({ isAuthenticated: false });
+      return;
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+    
+    // Fetch full user to return fresh data
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, email, name, role, location, store_name')
+      .eq('id', decoded.id)
+      .single();
+
+    if (error || !user) {
+      res.status(401).json({ isAuthenticated: false });
+      return;
+    }
+
+    res.status(200).json({ isAuthenticated: true, user });
+  } catch (error) {
+    res.status(401).json({ isAuthenticated: false });
   }
 };

@@ -1,27 +1,52 @@
 'use client';
 
-import { Search, Bell, Settings2, Coins } from 'lucide-react';
+import { Search, Bell, Settings2, Coins, Loader2 } from 'lucide-react';
 import CategoryPills from '@/components/CategoryPills';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const PRODUCTS = [
-  { id: '1', name: 'Berries', price: 500, rating: 4.5, reviews: 672, image: '/images/berries.png', category: 'fruits' },
-  { id: '2', name: 'Tulsi', price: 100, rating: 4.9, reviews: 324, image: '/images/tulsi.png', category: 'herbs' },
-  { id: '3', name: 'Milk', price: 70, rating: 4.9, reviews: 560, image: '/images/milk.png', category: 'dairy' },
-  { id: '4', name: 'Tomatos', price: 50, rating: 4.7, reviews: 874, image: '/images/tomatoes.png', category: 'veg' },
-  { id: '5', name: 'Wheat', price: 200, rating: 4.8, reviews: 150, image: '/images/berries.png', category: 'grains' }, // using berries image as placeholder
-];
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  image_url?: string;
+  stock_quantity: number;
+}
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredProducts = PRODUCTS.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
-    return matchesSearch && matchesCategory;
+  useEffect(() => {
+    fetchProducts();
+  }, [activeCategory]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.append('limit', '8');
+      if (activeCategory !== 'all') params.append('category', activeCategory);
+      if (searchQuery) params.append('search', searchQuery);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${params.toString()}`);
+      const data = await res.json();
+      if (res.ok) {
+        setProducts(data.products);
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = products.filter(product => {
+    return product.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
@@ -105,15 +130,31 @@ export default function Home() {
           <Link href="/explore" className="text-primary text-sm font-semibold hover:underline">View all</Link>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="text-gray-500 col-span-full">No products found.</p>
-          )}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 size={32} className="animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    rating: 4.5,
+                    reviews: 0,
+                    image: product.image_url || '/images/berries.png',
+                  }}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500 col-span-full">No products found.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, ShoppingCart, User } from 'lucide-react';
+import { Home, Compass, ShoppingCart, User, LayoutDashboard } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 const NAV_ITEMS = [
   { name: 'Home', href: '/', icon: Home },
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
 export default function Navigation() {
   const pathname = usePathname();
   const { cartCount } = useCart();
+  const { user } = useAuth();
 
   return (
     <>
@@ -53,6 +55,22 @@ export default function Navigation() {
               </Link>
             );
           })}
+          
+          {user?.role === 'FARMER' && (
+            <Link
+              href="/farmer/dashboard"
+              className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
+                pathname.startsWith('/farmer')
+                  ? 'bg-primary text-white shadow-md shadow-primary/20' 
+                  : 'text-gray-500 hover:bg-primary-light hover:text-primary'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <LayoutDashboard size={20} className={pathname.startsWith('/farmer') ? 'text-white' : ''} />
+                <span className="font-medium">Dashboard</span>
+              </div>
+            </Link>
+          )}
         </nav>
         
         <div className="mt-auto pt-4 border-t border-gray-100">
@@ -92,6 +110,20 @@ export default function Navigation() {
             </Link>
           );
         })}
+        
+        {user?.role === 'FARMER' && (
+          <Link
+            href="/farmer/dashboard"
+            className={`flex flex-col items-center gap-1 relative ${pathname.startsWith('/farmer') ? 'text-primary' : 'text-gray-400'}`}
+          >
+            <div className={`p-2 rounded-full transition-all duration-300 ${pathname.startsWith('/farmer') ? 'bg-primary-light' : 'bg-transparent'}`}>
+              <LayoutDashboard size={24} strokeWidth={pathname.startsWith('/farmer') ? 2.5 : 2} />
+            </div>
+            <span className={`text-[10px] font-medium transition-all duration-300 ${pathname.startsWith('/farmer') ? 'opacity-100 transform translate-y-0' : 'opacity-0 h-0 transform translate-y-2'}`}>
+              Dashboard
+            </span>
+          </Link>
+        )}
       </nav>
     </>
   );

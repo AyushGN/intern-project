@@ -1,30 +1,59 @@
 'use client';
 
-import { Heart, Filter, ChevronLeft } from 'lucide-react';
+import { Heart, Filter, ChevronLeft, Search, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import CategoryPills from '@/components/CategoryPills';
 import ProductCard from '@/components/ProductCard';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const PRODUCTS = [
-  { id: '1', name: 'Berries', price: 500, rating: 4.5, reviews: 672, image: '/images/berries.png', category: 'fruits' },
-  { id: '2', name: 'Tulsi', price: 100, rating: 4.9, reviews: 324, image: '/images/tulsi.png', category: 'herbs' },
-  { id: '3', name: 'Wheat', price: 800, rating: 4.9, reviews: 526, image: '/images/berries.png', category: 'grains' }, // reusing images for mock
-  { id: '4', name: 'Apples', price: 120, rating: 4.2, reviews: 468, image: '/images/tomatoes.png', category: 'fruits' },
-  { id: '5', name: 'Milk', price: 70, rating: 4.9, reviews: 560, image: '/images/milk.png', category: 'dairy' },
-  { id: '6', name: 'Tomatos', price: 50, rating: 4.7, reviews: 874, image: '/images/tomatoes.png', category: 'veg' },
-  { id: '7', name: 'Carrots', price: 40, rating: 4.6, reviews: 231, image: '/images/tomatoes.png', category: 'veg' },
-  { id: '8', name: 'Mint Leaves', price: 30, rating: 4.8, reviews: 156, image: '/images/tulsi.png', category: 'herbs' },
-  { id: '9', name: 'Rice', price: 450, rating: 4.4, reviews: 890, image: '/images/berries.png', category: 'grains' },
-  { id: '10', name: 'Pomegranate', price: 150, rating: 4.9, reviews: 412, image: '/images/pomegranate.png', category: 'fruits' },
-];
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  image_url?: string;
+  stock_quantity: number;
+  description?: string;
+  users?: {
+    name: string;
+    store_name?: string;
+    location?: string;
+  };
+}
 
 export default function Explore() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredProducts = PRODUCTS.filter(product => {
-    return activeCategory === 'all' || product.category === activeCategory;
-  });
+  useEffect(() => {
+    fetchProducts();
+  }, [activeCategory]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (activeCategory !== 'all') params.append('category', activeCategory);
+      if (searchQuery) params.append('search', searchQuery);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${params.toString()}`);
+      const data = await res.json();
+      if (res.ok) {
+        setProducts(data.products);
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchProducts();
+  };
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto w-full">
@@ -47,6 +76,22 @@ export default function Explore() {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="mb-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search size={18} className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white border border-gray-200 rounded-full py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+          />
+        </div>
+      </form>
+
       {/* Categories */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
@@ -56,15 +101,31 @@ export default function Explore() {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pb-8">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        ) : (
-          <p className="text-gray-500 col-span-full">No products found for this category.</p>
-        )}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 size={32} className="animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pb-8">
+          {products.length > 0 ? (
+            products.map(product => (
+              <ProductCard
+                key={product.id}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  rating: 4.5,
+                  reviews: 0,
+                  image: product.image_url || '/images/berries.png',
+                }}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-full text-center py-10">No products found.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
   id: string;
@@ -15,6 +15,7 @@ interface CartContextType {
   addToCart: (product: any) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  clearCart: () => void;
   cartCount: number;
   cartTotal: number;
 }
@@ -23,6 +24,27 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('freshmarket_cart');
+      if (stored) {
+        setCart(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Failed to load cart from localStorage', e);
+    }
+    setHydrated(true);
+  }, []);
+
+  // Persist to localStorage whenever cart changes (after hydration)
+  useEffect(() => {
+    if (hydrated) {
+      localStorage.setItem('freshmarket_cart', JSON.stringify(cart));
+    }
+  }, [cart, hydrated]);
 
   const addToCart = (product: any) => {
     setCart((prev) => {
@@ -46,11 +68,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem('freshmarket_cart');
+  };
+
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, cartCount, cartTotal }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal }}>
       {children}
     </CartContext.Provider>
   );

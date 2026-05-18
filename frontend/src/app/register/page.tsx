@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Mail, Lock, User, Store, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Store, ArrowRight, Loader2 } from 'lucide-react';
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
@@ -14,6 +15,24 @@ function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [farmName, setFarmName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const backendRole = role === 'farmer' ? 'FARMER' : 'CONSUMER';
+      await register(name, email, password, backendRole, farmName || undefined);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary/5 p-8 border border-gray-100">
@@ -27,15 +46,24 @@ function RegisterForm() {
         <p className="text-sm text-gray-500">Join Fresh Market today</p>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl p-3 text-center font-medium">
+          {error}
+        </div>
+      )}
+
       {/* Role Toggle */}
       <div className="flex p-1 bg-gray-100 rounded-2xl mb-8 relative">
         <button 
+          type="button"
           onClick={() => setRole('customer')}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all z-10 ${role === 'customer' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'}`}
         >
           <User size={16} /> Customer
         </button>
         <button 
+          type="button"
           onClick={() => setRole('farmer')}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all z-10 ${role === 'farmer' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'}`}
         >
@@ -49,7 +77,7 @@ function RegisterForm() {
       </div>
 
       {/* Form */}
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-1">
           <label className="text-sm font-semibold text-gray-700 ml-1">Full Name</label>
           <div className="relative">
@@ -63,6 +91,7 @@ function RegisterForm() {
               placeholder="John Doe" 
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
               required
+              disabled={loading}
             />
           </div>
         </div>
@@ -81,6 +110,7 @@ function RegisterForm() {
                 placeholder="Green Acres Farm" 
                 className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
                 required
+                disabled={loading}
               />
             </div>
           </div>
@@ -99,6 +129,7 @@ function RegisterForm() {
               placeholder="john@example.com" 
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
               required
+              disabled={loading}
             />
           </div>
         </div>
@@ -116,13 +147,24 @@ function RegisterForm() {
               placeholder="Create a strong password" 
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
               required
+              disabled={loading}
             />
           </div>
         </div>
 
-        <button className="w-full bg-primary text-white font-bold py-3.5 rounded-2xl shadow-md shadow-primary/20 hover:bg-primary/90 transition-all flex justify-center items-center gap-2 mt-6">
-          Create Account
-          <ArrowRight size={18} />
+        <button 
+          type="submit"
+          disabled={loading}
+          className="w-full bg-primary text-white font-bold py-3.5 rounded-2xl shadow-md shadow-primary/20 hover:bg-primary/90 transition-all flex justify-center items-center gap-2 mt-6 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
+            <>
+              Create Account
+              <ArrowRight size={18} />
+            </>
+          )}
         </button>
       </form>
 

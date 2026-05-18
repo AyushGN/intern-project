@@ -16,8 +16,7 @@ declare global {
 }
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+  const token = req.cookies?.token || (req.headers['authorization']?.split(' ')[1]);
 
   if (!token) {
     res.status(401).json({ error: 'Access denied. No token provided.' });
