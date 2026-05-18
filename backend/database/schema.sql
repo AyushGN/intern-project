@@ -12,6 +12,7 @@ CREATE TABLE users (
   -- Profile data
   location TEXT,
   store_name VARCHAR(255),
+  avatar_url TEXT,
   
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL

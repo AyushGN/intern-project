@@ -1,3 +1,4 @@
 INTERNSHIP USER NAME AND PASS
 pass-Ayush@gn2004
-user name-Intern-project
+user name=Intern-project
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcGhjc3dzc2twcWFocW13eG9nIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODY1MTg5MiwiZXhwIjoyMDk0MjI3ODkyfQ.CLkgcOOn7ewH_r764nqNB3_tsOQa0vgO7aDP8PaJk_Y
