@@ -22,9 +22,11 @@ export default function FarmerDashboard() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'analytics'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'analytics' | 'inquiries'>('products');
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [inquiriesLoading, setInquiriesLoading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -39,6 +41,7 @@ export default function FarmerDashboard() {
     if (user?.role === 'FARMER') {
       fetchProducts();
       fetchOrders();
+      fetchInquiries();
     }
   }, [user]);
 
@@ -70,6 +73,38 @@ export default function FarmerDashboard() {
       console.error('Failed to fetch farmer orders:', error);
     } finally {
       setOrdersLoading(false);
+    }
+  };
+
+  const fetchInquiries = async () => {
+    setInquiriesLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/b2b/inquiries/farmer`, {
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (res.ok) setInquiries(data.inquiries || []);
+    } catch (error) {
+      console.error('Failed to fetch farmer inquiries:', error);
+    } finally {
+      setInquiriesLoading(false);
+    }
+  };
+
+  const handleUpdateInquiryStatus = async (inquiryId: string, status: 'accepted' | 'rejected' | 'completed') => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/b2b/inquiries/${inquiryId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        // Optimistically update status locally
+        setInquiries(prev => prev.map(inq => inq.id === inquiryId ? { ...inq, status } : inq));
+      }
+    } catch (error) {
+      console.error('Failed to update inquiry status:', error);
     }
   };
 
@@ -177,6 +212,20 @@ export default function FarmerDashboard() {
           }`}
         >
           Orders
+        </button>
+        <button
+          onClick={() => setActiveTab('inquiries')}
+          className={`pb-3 px-4 font-semibold text-sm transition-colors ${
+            activeTab === 'inquiries'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Bulk Inquiries {inquiries.length > 0 && (
+            <span className="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-1">
+              {inquiries.length}
+            </span>
+          )}
         </button>
         <button
           onClick={() => setActiveTab('analytics')}
@@ -314,6 +363,81 @@ export default function FarmerDashboard() {
         <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
           <DollarSign size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500">Analytics feature coming soon</p>
+        </div>
+      )}
+
+      {/* Inquiries Tab */}
+      {activeTab === 'inquiries' && (
+        <div className="space-y-4">
+          {inquiriesLoading ? (
+            <div className="flex justify-center py-16">
+              <Loader2 size={28} className="animate-spin text-primary" />
+            </div>
+          ) : inquiries.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
+              <MessageSquare size={48} className="mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-500">No B2B inquiries received yet</p>
+            </div>
+          ) : (
+            inquiries.map((inquiry: any) => (
+              <div key={inquiry.id} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{inquiry.shops?.store_name || inquiry.shops?.name}</h4>
+                    <p className="text-xs text-gray-500">Contact: {inquiry.shops?.email}</p>
+                    <p className="text-xs text-gray-400">Location: {inquiry.shops?.location || 'Nearby Shop'}</p>
+                  </div>
+                  <span className={`text-xs font-bold px-3 py-1.5 rounded-full capitalize ${
+                    inquiry.status === 'completed' ? 'bg-purple-100 text-purple-700' :
+                    inquiry.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                    inquiry.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                    'bg-orange-100 text-orange-700'
+                  }`}>
+                    {inquiry.status === 'pending' ? 'Pending Response' : `Inquiry ${inquiry.status}`}
+                  </span>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                  <div className="flex justify-between items-center mb-2 border-b border-gray-200/50 pb-2">
+                    <span className="text-xs font-semibold text-gray-500">Requested Crop Qty:</span>
+                    <span className="text-sm font-bold text-gray-900">{inquiry.quantity} {inquiry.unit}</span>
+                  </div>
+                  {inquiry.message && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 mb-1">Message from Shop:</p>
+                      <p className="text-xs text-gray-600 leading-relaxed italic">{inquiry.message}</p>
+                    </div>
+                  )}
+                </div>
+
+                {inquiry.status === 'pending' && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleUpdateInquiryStatus(inquiry.id, 'accepted')}
+                      className="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl text-xs hover:bg-primary/95 transition-all shadow-sm"
+                    >
+                      Accept Inquiry
+                    </button>
+                    <button
+                      onClick={() => handleUpdateInquiryStatus(inquiry.id, 'rejected')}
+                      className="flex-1 bg-white text-red-600 border border-red-200 font-bold py-2.5 rounded-xl text-xs hover:bg-red-50 transition-all"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                )}
+
+                {inquiry.status === 'accepted' && (
+                  <button
+                    onClick={() => handleUpdateInquiryStatus(inquiry.id, 'completed')}
+                    className="w-full bg-purple-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-purple-700 transition-all shadow-sm flex items-center justify-center gap-2"
+                  >
+                    <Truck size={14} /> Mark as Fulfilled & Delivered
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

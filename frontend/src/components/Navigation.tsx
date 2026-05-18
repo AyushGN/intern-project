@@ -71,6 +71,22 @@ export default function Navigation() {
               </div>
             </Link>
           )}
+          
+          {user?.role === 'SHOP' && (
+            <Link
+              href="/shop/dashboard"
+              className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
+                pathname.startsWith('/shop')
+                  ? 'bg-primary text-white shadow-md shadow-primary/20' 
+                  : 'text-gray-500 hover:bg-primary-light hover:text-primary'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <LayoutDashboard size={20} className={pathname.startsWith('/shop') ? 'text-white' : ''} />
+                <span className="font-medium">Shop Dashboard</span>
+              </div>
+            </Link>
+          )}
         </nav>
         
         <div className="mt-auto pt-4 border-t border-gray-100">
@@ -121,6 +137,20 @@ export default function Navigation() {
             </div>
             <span className={`text-[10px] font-medium transition-all duration-300 ${pathname.startsWith('/farmer') ? 'opacity-100 transform translate-y-0' : 'opacity-0 h-0 transform translate-y-2'}`}>
               Dashboard
+            </span>
+          </Link>
+        )}
+
+        {user?.role === 'SHOP' && (
+          <Link
+            href="/shop/dashboard"
+            className={`flex flex-col items-center gap-1 relative ${pathname.startsWith('/shop') ? 'text-primary' : 'text-gray-400'}`}
+          >
+            <div className={`p-2 rounded-full transition-all duration-300 ${pathname.startsWith('/shop') ? 'bg-primary-light' : 'bg-transparent'}`}>
+              <LayoutDashboard size={24} strokeWidth={pathname.startsWith('/shop') ? 2.5 : 2} />
+            </div>
+            <span className={`text-[10px] font-medium transition-all duration-300 ${pathname.startsWith('/shop') ? 'opacity-100 transform translate-y-0' : 'opacity-0 h-0 transform translate-y-2'}`}>
+              Shop
             </span>
           </Link>
         )}

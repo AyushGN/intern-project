@@ -108,7 +108,38 @@ CREATE INDEX IF NOT EXISTS idx_orders_consumer_id ON orders(consumer_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 
--- 9. Seed sample products (find your farmer user id first, then paste below)
+-- ================================================
+-- Week 3: B2B Connectivity Extensions
+-- ================================================
+
+-- 9. Add Latitude and Longitude to Users table (for location radius queries)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS latitude DECIMAL(9, 6);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS longitude DECIMAL(9, 6);
+
+-- 10. B2B Bulk Inquiries Table (Local Shop -> Farmer Connect)
+CREATE TABLE IF NOT EXISTS b2b_inquiries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  farmer_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+  quantity INTEGER NOT NULL,
+  unit VARCHAR(50) DEFAULT 'kg',
+  message TEXT,
+  status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'accepted', 'rejected', 'completed'
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Trigger for B2B inquiries updated_at
+DO $$ BEGIN
+  CREATE TRIGGER set_timestamp_b2b_inquiries BEFORE UPDATE ON b2b_inquiries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- Indexes for B2B inquiries
+CREATE INDEX IF NOT EXISTS idx_b2b_inquiries_shop_id ON b2b_inquiries(shop_id);
+CREATE INDEX IF NOT EXISTS idx_b2b_inquiries_farmer_id ON b2b_inquiries(farmer_id);
+
+-- 11. Seed sample products (find your farmer user id first, then paste below)
 -- First run: SELECT id FROM users WHERE role = 'FARMER' LIMIT 1;
 -- Then replace 'YOUR_FARMER_ID' below with the actual UUID
 
@@ -120,3 +151,4 @@ CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 -- ('YOUR_FARMER_ID', 'Fresh Tulsi Leaves', 'Organically grown tulsi/holy basil', 30.00, 'herbs', 30, 'piece', NULL),
 -- ('YOUR_FARMER_ID', 'Pure A2 Cow Milk', 'Fresh A2 milk from desi cows, delivered daily', 80.00, 'dairy', 80, 'ltr', NULL),
 -- ('YOUR_FARMER_ID', 'Red Chilli Powder', 'Ground from sun-dried Byadgi chillis', 95.00, 'spices', 60, 'kg', NULL);
+

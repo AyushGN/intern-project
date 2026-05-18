@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes';
 import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import b2bRoutes from './routes/b2bRoutes';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/b2b', b2bRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
