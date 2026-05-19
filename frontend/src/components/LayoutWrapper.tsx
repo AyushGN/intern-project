@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Navigation from './Navigation';
-import React from 'react';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,7 +12,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <>
       {!isAuthPage && !isOrderSuccess && <Navigation />}
-      <main className={`flex-1 w-full ${!isAuthPage && !isOrderSuccess ? 'md:ml-64 pb-20 md:pb-0' : ''} overflow-x-hidden`}>
+      <main className={`flex-1 w-full relative ${!isAuthPage && !isOrderSuccess ? 'md:ml-64 pb-20 md:pb-0' : ''} overflow-x-hidden`}>
+        {!isAuthPage && !isOrderSuccess && (
+          <div className="absolute top-4 right-4 z-50">
+            <ThemeToggle />
+          </div>
+        )}
         {children}
       </main>
     </>

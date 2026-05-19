@@ -60,6 +60,8 @@ export default function AddProductPage() {
         const uploadData = await uploadRes.json();
         if (uploadRes.ok) {
           imageUrl = uploadData.url;
+        } else {
+          throw new Error(uploadData.error || 'Failed to upload image. Please check Supabase storage configuration.');
         }
       }
 
