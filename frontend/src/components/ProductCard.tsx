@@ -30,8 +30,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/products/${product.id}`} className="block">
-      <div className="bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 flex flex-col h-full">
-        <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-50">
+      <div className="bg-card rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300 border border-border flex flex-col h-full">
+        <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-background">
           <img 
             src={product.image} 
             alt={product.name}
@@ -39,7 +39,7 @@ export default function ProductCard({ product }: { product: Product }) {
           />
           <button 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLiked(!isLiked); }}
-            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 transition-colors"
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-gray-400 hover:text-red-500 transition-colors"
           >
             <Heart size={18} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "text-red-500" : ""} />
           </button>
@@ -51,7 +51,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="font-bold text-base">₹{product.price}{product.unit ? <span className="text-gray-400 font-normal text-xs">/{product.unit}</span> : ''}</span>
           <div className="flex items-center gap-1 text-yellow-500">
             <Star size={12} fill="currentColor" />
-            <span className="text-gray-600 font-medium">{product.rating}</span>
+            <span className="text-muted font-medium">{product.rating}</span>
           </div>
         </div>
         

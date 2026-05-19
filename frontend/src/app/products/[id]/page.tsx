@@ -85,7 +85,7 @@ export default function ProductDetailPage() {
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto w-full pt-4 md:pt-8">
       {/* Back */}
-      <Link href="/explore" className="flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors">
+      <Link href="/explore" className="flex items-center gap-2 text-muted hover:text-primary mb-6 transition-colors">
         <ArrowLeft size={20} />
         <span className="text-sm font-medium">Back to Explore</span>
       </Link>
@@ -93,21 +93,21 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image */}
         <div className="relative">
-          <div className="aspect-square rounded-3xl overflow-hidden bg-gray-50 shadow-sm border border-gray-100">
+          <div className="aspect-square rounded-3xl overflow-hidden bg-background shadow-sm border border-border">
             <img
               src={product.image_url || '/images/berries.png'}
               alt={product.name}
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-xs font-bold px-3 py-1.5 rounded-full capitalize text-gray-600 border border-gray-200">
+          <span className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm text-xs font-bold px-3 py-1.5 rounded-full capitalize text-muted border border-border">
             {CATEGORY_EMOJIS[product.category] || '📦'} {product.category}
           </span>
         </div>
 
         {/* Details */}
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
           
           <div className="flex items-center gap-3 mb-4">
             <div className="flex items-center gap-1 text-yellow-500">
@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
           </p>
 
           {product.description && (
-            <p className="text-gray-600 text-sm leading-relaxed mt-4 mb-6">
+            <p className="text-muted text-sm leading-relaxed mt-4 mb-6">
               {product.description}
             </p>
           )}
@@ -143,9 +143,9 @@ export default function ProductDetailPage() {
                   <Store size={18} />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">{product.users.store_name || product.users.name}</p>
+                  <p className="font-semibold text-foreground">{product.users.store_name || product.users.name}</p>
                   {product.users.location && (
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <p className="text-xs text-muted flex items-center gap-1">
                       <MapPin size={12} /> {product.users.location}
                     </p>
                   )}
@@ -156,16 +156,16 @@ export default function ProductDetailPage() {
 
           {/* Quantity selector */}
           <div className="flex items-center gap-4 mb-6">
-            <span className="text-sm font-semibold text-gray-700">Quantity</span>
-            <div className="flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2">
+            <span className="text-sm font-semibold text-foreground">Quantity</span>
+            <div className="flex items-center gap-3 bg-border rounded-full px-4 py-2">
               <button
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                className="w-6 h-6 flex items-center justify-center font-bold text-gray-600 hover:text-primary transition-colors"
+                className="w-6 h-6 flex items-center justify-center font-bold text-muted hover:text-primary transition-colors"
               >−</button>
-              <span className="font-bold text-gray-900 min-w-[2ch] text-center">{quantity}</span>
+              <span className="font-bold text-foreground min-w-[2ch] text-center">{quantity}</span>
               <button
                 onClick={() => setQuantity(q => Math.min(product.stock_quantity, q + 1))}
-                className="w-6 h-6 flex items-center justify-center font-bold text-gray-600 hover:text-primary transition-colors"
+                className="w-6 h-6 flex items-center justify-center font-bold text-muted hover:text-primary transition-colors"
               >+</button>
             </div>
           </div>

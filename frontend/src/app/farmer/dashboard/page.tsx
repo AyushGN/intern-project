@@ -142,7 +142,7 @@ export default function FarmerDashboard() {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto w-full pt-20 md:pt-10">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Farmer Dashboard</h1>
+        <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
         <Link
           href="/farmer/add-product"
           className="bg-primary text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
@@ -154,11 +154,11 @@ export default function FarmerDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Total Products</p>
-              <p className="text-3xl font-bold text-gray-900">{totalProducts}</p>
+              <p className="text-sm text-muted mb-1">Total Products</p>
+              <p className="text-3xl font-bold text-foreground">{totalProducts}</p>
             </div>
             <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center text-primary">
               <Package size={24} />
@@ -166,10 +166,10 @@ export default function FarmerDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Active Listings</p>
+              <p className="text-sm text-muted mb-1">Active Listings</p>
               <p className="text-3xl font-bold text-green-600">{activeProducts}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
@@ -178,10 +178,10 @@ export default function FarmerDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Total Stock</p>
+              <p className="text-sm text-muted mb-1">Total Stock</p>
               <p className="text-3xl font-bold text-blue-600">{totalStock} kg</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
@@ -192,13 +192,13 @@ export default function FarmerDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200">
+      <div className="flex gap-4 mb-6 border-b border-border">
         <button
           onClick={() => setActiveTab('products')}
           className={`pb-3 px-4 font-semibold text-sm transition-colors ${
             activeTab === 'products'
               ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-muted hover:text-foreground'
           }`}
         >
           My Products
@@ -208,7 +208,7 @@ export default function FarmerDashboard() {
           className={`pb-3 px-4 font-semibold text-sm transition-colors ${
             activeTab === 'orders'
               ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-muted hover:text-foreground'
           }`}
         >
           Orders
@@ -218,7 +218,7 @@ export default function FarmerDashboard() {
           className={`pb-3 px-4 font-semibold text-sm transition-colors ${
             activeTab === 'inquiries'
               ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-muted hover:text-foreground'
           }`}
         >
           Bulk Inquiries {inquiries.length > 0 && (
@@ -232,7 +232,7 @@ export default function FarmerDashboard() {
           className={`pb-3 px-4 font-semibold text-sm transition-colors ${
             activeTab === 'analytics'
               ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-muted hover:text-foreground'
           }`}
         >
           Analytics
@@ -241,11 +241,11 @@ export default function FarmerDashboard() {
 
       {/* Products Tab */}
       {activeTab === 'products' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           {products.length === 0 ? (
             <div className="p-12 text-center">
               <Package size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 mb-4">You haven't added any products yet</p>
+              <p className="text-muted mb-4">You haven't added any products yet</p>
               <Link
                 href="/farmer/add-product"
                 className="text-primary font-semibold hover:underline"
@@ -256,39 +256,39 @@ export default function FarmerDashboard() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-background">
                   <tr>
-                    <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Product</th>
-                    <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Category</th>
-                    <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Price</th>
-                    <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Stock</th>
-                    <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Status</th>
-                    <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
+                    <th className="text-left py-4 px-6 text-sm font-semibold text-muted">Product</th>
+                    <th className="text-left py-4 px-6 text-sm font-semibold text-muted">Category</th>
+                    <th className="text-left py-4 px-6 text-sm font-semibold text-muted">Price</th>
+                    <th className="text-left py-4 px-6 text-sm font-semibold text-muted">Stock</th>
+                    <th className="text-left py-4 px-6 text-sm font-semibold text-muted">Status</th>
+                    <th className="text-left py-4 px-6 text-sm font-semibold text-muted">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products.map((product) => (
-                    <tr key={product.id} className="border-t border-gray-100 hover:bg-gray-50">
+                    <tr key={product.id} className="border-t border-border hover:bg-background">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-12 h-12 rounded-lg object-cover" />
                           ) : (
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <div className="w-12 h-12 bg-border rounded-lg flex items-center justify-center">
                               <Package size={20} className="text-gray-400" />
                             </div>
                           )}
-                          <span className="font-semibold text-gray-900">{product.name}</span>
+                          <span className="font-semibold text-foreground">{product.name}</span>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-sm text-gray-600 capitalize">{product.category}</td>
+                      <td className="py-4 px-6 text-sm text-muted capitalize">{product.category}</td>
                       <td className="py-4 px-6 font-semibold text-primary">₹{product.price}</td>
-                      <td className="py-4 px-6 text-sm text-gray-600">{product.stock_quantity} kg</td>
+                      <td className="py-4 px-6 text-sm text-muted">{product.stock_quantity} kg</td>
                       <td className="py-4 px-6">
                         <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
                           product.is_active
                             ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-600'
+                            : 'bg-border text-muted'
                         }`}>
                           {product.is_active ? 'Active' : 'Inactive'}
                         </span>
@@ -326,17 +326,17 @@ export default function FarmerDashboard() {
               <Loader2 size={28} className="animate-spin text-primary" />
             </div>
           ) : orders.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
+            <div className="bg-card rounded-2xl p-12 shadow-sm border border-border text-center">
               <ShoppingCart size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No orders received yet</p>
+              <p className="text-muted">No orders received yet</p>
             </div>
           ) : (
             orders.map((item: any, idx: number) => (
-              <div key={idx} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div key={idx} className="bg-card rounded-2xl p-5 shadow-sm border border-border">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <p className="font-semibold text-gray-900">{item.products?.name}</p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity} · ₹{item.subtotal}</p>
+                    <p className="font-semibold text-foreground">{item.products?.name}</p>
+                    <p className="text-sm text-muted">Qty: {item.quantity} · ₹{item.subtotal}</p>
                   </div>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                     item.orders?.status === 'delivered' ? 'bg-green-100 text-green-700' :
@@ -347,9 +347,9 @@ export default function FarmerDashboard() {
                     {item.orders?.status}
                   </span>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3 text-sm">
-                  <p className="font-medium text-gray-800">{item.orders?.users?.name || item.orders?.shipping_name}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{item.orders?.shipping_address}, {item.orders?.shipping_city}</p>
+                <div className="bg-background rounded-xl p-3 text-sm">
+                  <p className="font-medium text-foreground">{item.orders?.users?.name || item.orders?.shipping_name}</p>
+                  <p className="text-muted text-xs mt-0.5">{item.orders?.shipping_address}, {item.orders?.shipping_city}</p>
                   <p className="text-gray-400 text-xs">{item.orders?.users?.email}</p>
                 </div>
               </div>
@@ -360,9 +360,9 @@ export default function FarmerDashboard() {
 
       {/* Analytics Tab */}
       {activeTab === 'analytics' && (
-        <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
+        <div className="bg-card rounded-2xl p-12 shadow-sm border border-border text-center">
           <DollarSign size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500">Analytics feature coming soon</p>
+          <p className="text-muted">Analytics feature coming soon</p>
         </div>
       )}
 
@@ -374,17 +374,17 @@ export default function FarmerDashboard() {
               <Loader2 size={28} className="animate-spin text-primary" />
             </div>
           ) : inquiries.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
+            <div className="bg-card rounded-2xl p-12 shadow-sm border border-border text-center">
               <MessageSquare size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No B2B inquiries received yet</p>
+              <p className="text-muted">No B2B inquiries received yet</p>
             </div>
           ) : (
             inquiries.map((inquiry: any) => (
-              <div key={inquiry.id} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div key={inquiry.id} className="bg-card rounded-2xl p-5 shadow-sm border border-border">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h4 className="font-semibold text-gray-900">{inquiry.shops?.store_name || inquiry.shops?.name}</h4>
-                    <p className="text-xs text-gray-500">Contact: {inquiry.shops?.email}</p>
+                    <h4 className="font-semibold text-foreground">{inquiry.shops?.store_name || inquiry.shops?.name}</h4>
+                    <p className="text-xs text-muted">Contact: {inquiry.shops?.email}</p>
                     <p className="text-xs text-gray-400">Location: {inquiry.shops?.location || 'Nearby Shop'}</p>
                   </div>
                   <span className={`text-xs font-bold px-3 py-1.5 rounded-full capitalize ${
@@ -397,15 +397,15 @@ export default function FarmerDashboard() {
                   </span>
                 </div>
 
-                <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                  <div className="flex justify-between items-center mb-2 border-b border-gray-200/50 pb-2">
-                    <span className="text-xs font-semibold text-gray-500">Requested Crop Qty:</span>
-                    <span className="text-sm font-bold text-gray-900">{inquiry.quantity} {inquiry.unit}</span>
+                <div className="bg-background rounded-xl p-4 mb-4">
+                  <div className="flex justify-between items-center mb-2 border-b border-border/50 pb-2">
+                    <span className="text-xs font-semibold text-muted">Requested Crop Qty:</span>
+                    <span className="text-sm font-bold text-foreground">{inquiry.quantity} {inquiry.unit}</span>
                   </div>
                   {inquiry.message && (
                     <div>
                       <p className="text-xs font-semibold text-gray-400 mb-1">Message from Shop:</p>
-                      <p className="text-xs text-gray-600 leading-relaxed italic">{inquiry.message}</p>
+                      <p className="text-xs text-muted leading-relaxed italic">{inquiry.message}</p>
                     </div>
                   )}
                 </div>
@@ -420,7 +420,7 @@ export default function FarmerDashboard() {
                     </button>
                     <button
                       onClick={() => handleUpdateInquiryStatus(inquiry.id, 'rejected')}
-                      className="flex-1 bg-white text-red-600 border border-red-200 font-bold py-2.5 rounded-xl text-xs hover:bg-red-50 transition-all"
+                      className="flex-1 bg-card text-red-600 border border-red-200 font-bold py-2.5 rounded-xl text-xs hover:bg-red-50 transition-all"
                     >
                       Decline
                     </button>

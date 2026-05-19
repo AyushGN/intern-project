@@ -62,8 +62,8 @@ export default function Home() {
             <Coins size={14} className="text-primary" />
             <span className="text-xs font-bold text-primary">50</span>
           </div>
-          <button className="p-2 rounded-full bg-gray-50 border border-gray-100">
-            <Bell size={18} className="text-gray-600" />
+          <button className="p-2 rounded-full bg-background border border-border">
+            <Bell size={18} className="text-muted" />
           </button>
         </div>
       </div>
@@ -74,8 +74,8 @@ export default function Home() {
             <Coins size={16} className="text-primary" />
             <span className="font-bold text-primary">50 Coins</span>
           </div>
-          <button className="p-2.5 rounded-full bg-white border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm">
-            <Bell size={20} className="text-gray-600" />
+          <button className="p-2.5 rounded-full bg-card border border-border hover:bg-background transition-colors shadow-sm">
+            <Bell size={20} className="text-muted" />
           </button>
       </div>
 
@@ -90,10 +90,10 @@ export default function Home() {
             placeholder="Search products, farms..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-full py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
+            className="w-full bg-card border border-border rounded-full py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
           />
         </div>
-        <Link href="/explore" className="p-3 bg-white border border-gray-200 rounded-full shadow-sm text-gray-600 hover:text-primary transition-colors flex items-center justify-center">
+        <Link href="/explore" className="p-3 bg-card border border-border rounded-full shadow-sm text-muted hover:text-primary transition-colors flex items-center justify-center">
           <Settings2 size={20} />
         </Link>
       </div>
@@ -108,7 +108,7 @@ export default function Home() {
         <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-center items-start w-2/3">
           <h2 className="text-xl md:text-3xl font-bold text-white mb-2 drop-shadow-md">Are you a <span className="text-primary-light">Farmer ?</span></h2>
           <p className="text-white font-medium text-sm md:text-base mb-4 drop-shadow-md">Sell your <span className="italic">Products here</span></p>
-          <Link href="/register?role=farmer" className="bg-white text-primary px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold shadow-md hover:bg-gray-100 transition-colors inline-block text-center">
+          <Link href="/register?role=farmer" className="bg-card text-primary px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold shadow-md hover:bg-border transition-colors inline-block text-center">
             Get Started
           </Link>
         </div>
@@ -151,7 +151,7 @@ export default function Home() {
                 />
               ))
             ) : (
-              <p className="text-gray-500 col-span-full">No products found.</p>
+              <p className="text-muted col-span-full">No products found.</p>
             )}
           </div>
         )}

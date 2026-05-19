@@ -35,15 +35,15 @@ function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary/5 p-8 border border-gray-100">
+    <div className="w-full max-w-md bg-card rounded-3xl shadow-xl shadow-primary/5 p-8 border border-border">
       
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
            <img src="/images/logo.png" alt="Fresh Market" className="w-12 h-12 object-contain" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Create an Account</h1>
-        <p className="text-sm text-gray-500">Join Fresh Market today</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Create an Account</h1>
+        <p className="text-sm text-muted">Join Fresh Market today</p>
       </div>
 
       {/* Error Banner */}
@@ -54,24 +54,24 @@ function RegisterForm() {
       )}
 
       {/* Role Toggle */}
-      <div className="flex p-1 bg-gray-100 rounded-2xl mb-8 relative">
+      <div className="flex p-1 bg-border rounded-2xl mb-8 relative">
         <button 
           type="button"
           onClick={() => setRole('customer')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all z-10 ${role === 'customer' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all z-10 ${role === 'customer' ? 'text-primary' : 'text-muted hover:text-foreground'}`}
         >
           <User size={16} /> Customer
         </button>
         <button 
           type="button"
           onClick={() => setRole('farmer')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all z-10 ${role === 'farmer' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all z-10 ${role === 'farmer' ? 'text-primary' : 'text-muted hover:text-foreground'}`}
         >
           <Store size={16} /> Farmer
         </button>
         {/* Animated Background */}
         <div 
-          className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out border border-gray-200/50`}
+          className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-card rounded-xl shadow-sm transition-all duration-300 ease-out border border-border/50`}
           style={{ left: role === 'customer' ? '4px' : 'calc(50% + 0px)' }}
         />
       </div>
@@ -79,7 +79,7 @@ function RegisterForm() {
       {/* Form */}
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-700 ml-1">Full Name</label>
+          <label className="text-sm font-semibold text-foreground ml-1">Full Name</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <User size={18} className="text-gray-400" />
@@ -89,7 +89,7 @@ function RegisterForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="John Doe" 
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
+              className="w-full bg-background border border-border rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-card transition-all"
               required
               disabled={loading}
             />
@@ -98,7 +98,7 @@ function RegisterForm() {
 
         {role === 'farmer' && (
           <div className="space-y-1">
-            <label className="text-sm font-semibold text-gray-700 ml-1">Farm/Store Name</label>
+            <label className="text-sm font-semibold text-foreground ml-1">Farm/Store Name</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Store size={18} className="text-gray-400" />
@@ -108,7 +108,7 @@ function RegisterForm() {
                 value={farmName}
                 onChange={(e) => setFarmName(e.target.value)}
                 placeholder="Green Acres Farm" 
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
+                className="w-full bg-background border border-border rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-card transition-all"
                 required
                 disabled={loading}
               />
@@ -117,7 +117,7 @@ function RegisterForm() {
         )}
 
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-700 ml-1">Email Address</label>
+          <label className="text-sm font-semibold text-foreground ml-1">Email Address</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Mail size={18} className="text-gray-400" />
@@ -127,7 +127,7 @@ function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="john@example.com" 
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
+              className="w-full bg-background border border-border rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-card transition-all"
               required
               disabled={loading}
             />
@@ -135,7 +135,7 @@ function RegisterForm() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-700 ml-1">Password</label>
+          <label className="text-sm font-semibold text-foreground ml-1">Password</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Lock size={18} className="text-gray-400" />
@@ -145,7 +145,7 @@ function RegisterForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a strong password" 
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
+              className="w-full bg-background border border-border rounded-2xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-card transition-all"
               required
               disabled={loading}
             />
@@ -170,14 +170,14 @@ function RegisterForm() {
 
       {/* Divider */}
       <div className="mt-8 mb-6 flex items-center">
-        <div className="flex-1 border-t border-gray-200"></div>
+        <div className="flex-1 border-t border-border"></div>
         <span className="px-4 text-xs text-gray-400 font-semibold uppercase tracking-wider">Or continue with</span>
-        <div className="flex-1 border-t border-gray-200"></div>
+        <div className="flex-1 border-t border-border"></div>
       </div>
 
       {/* Social Logins */}
       <div className="grid grid-cols-4 gap-3">
-        <button className="flex justify-center items-center py-3 rounded-2xl border border-gray-200 hover:bg-gray-50 transition-colors">
+        <button className="flex justify-center items-center py-3 rounded-2xl border border-border hover:bg-background transition-colors">
           <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.16v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -185,17 +185,17 @@ function RegisterForm() {
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
         </button>
-        <button className="flex justify-center items-center py-3 rounded-2xl border border-gray-200 hover:bg-gray-50 transition-colors">
+        <button className="flex justify-center items-center py-3 rounded-2xl border border-border hover:bg-background transition-colors">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
             <path d="M16.435 11.514c.029-2.906 2.378-4.28 2.484-4.343-1.35-1.977-3.447-2.243-4.195-2.274-1.782-.178-3.477 1.047-4.385 1.047-.909 0-2.316-1.026-3.794-1.002-1.932.029-3.716 1.121-4.707 2.847-2.008 3.486-.514 8.647 1.442 11.472.956 1.378 2.083 2.923 3.559 2.868 1.423-.056 1.956-.919 3.619-.919 1.657 0 2.146.919 3.633.89 1.522-.029 2.493-1.408 3.441-2.793 1.1-1.604 1.554-3.157 1.579-3.238-.035-.015-3.033-1.161-3.008-4.43M15.111 6.305c.783-.951 1.309-2.273 1.165-3.593-1.139.046-2.525.759-3.329 1.705-.72.847-1.347 2.193-1.182 3.493 1.272.099 2.563-.655 3.346-1.605"/>
           </svg>
         </button>
-        <button className="flex justify-center items-center py-3 rounded-2xl border border-gray-200 hover:bg-gray-50 transition-colors">
+        <button className="flex justify-center items-center py-3 rounded-2xl border border-border hover:bg-background transition-colors">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg">
             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
           </svg>
         </button>
-        <button className="flex justify-center items-center py-3 rounded-2xl border border-gray-200 hover:bg-gray-50 transition-colors">
+        <button className="flex justify-center items-center py-3 rounded-2xl border border-border hover:bg-background transition-colors">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
             <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
           </svg>
@@ -203,7 +203,7 @@ function RegisterForm() {
       </div>
 
       {/* Footer */}
-      <p className="text-center text-sm text-gray-500 mt-8">
+      <p className="text-center text-sm text-muted mt-8">
         Already have an account?{' '}
         <Link href="/login" className="font-bold text-primary hover:underline">
           Sign in
@@ -218,7 +218,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 md:p-8 py-12 md:py-8">
       <Suspense fallback={
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-gray-100 flex justify-center items-center min-h-[500px]">
+        <div className="w-full max-w-md bg-card rounded-3xl shadow-xl p-8 border border-border flex justify-center items-center min-h-[500px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       }>

@@ -143,12 +143,12 @@ export default function EditProductPage() {
 
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto w-full pt-20 md:pt-10">
-      <Link href="/farmer/dashboard" className="flex items-center gap-2 text-gray-600 hover:text-primary mb-6">
+      <Link href="/farmer/dashboard" className="flex items-center gap-2 text-muted hover:text-primary mb-6">
         <ArrowLeft size={20} />
         Back to Dashboard
       </Link>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Product</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-8">Edit Product</h1>
 
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl p-3 text-center font-medium">
@@ -156,12 +156,12 @@ export default function EditProductPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-8 shadow-sm border border-border space-y-6">
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Product Image</label>
           <div className="flex items-center gap-6">
-            <div className="w-32 h-32 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
+            <div className="w-32 h-32 bg-border rounded-xl flex items-center justify-center overflow-hidden">
               {imagePreview ? (
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
               ) : (
@@ -182,44 +182,44 @@ export default function EditProductPage() {
               >
                 Choose Image
               </label>
-              <p className="text-xs text-gray-500 mt-2">PNG, JPG up to 5MB</p>
+              <p className="text-xs text-muted mt-2">PNG, JPG up to 5MB</p>
             </div>
           </div>
         </div>
 
         {/* Product Name */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Product Name</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             required
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+            className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
           />
         </div>
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Category</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             {CATEGORIES.map(cat => (
               <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
@@ -230,7 +230,7 @@ export default function EditProductPage() {
         {/* Price and Stock */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Price (₹)</label>
+            <label className="block text-sm font-semibold text-foreground mb-2">Price (₹)</label>
             <input
               type="number"
               name="price"
@@ -238,19 +238,19 @@ export default function EditProductPage() {
               onChange={handleChange}
               min="0"
               step="0.01"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
+            <label className="block text-sm font-semibold text-foreground mb-2">Stock Quantity</label>
             <input
               type="number"
               name="stock_quantity"
               value={formData.stock_quantity}
               onChange={handleChange}
               min="0"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               required
             />
           </div>
@@ -258,12 +258,12 @@ export default function EditProductPage() {
 
         {/* Unit */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Unit</label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Unit</label>
           <select
             name="unit"
             value={formData.unit}
             onChange={handleChange}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full bg-background border border-border rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="kg">Kilogram (kg)</option>
             <option value="g">Gram (g)</option>
@@ -282,7 +282,7 @@ export default function EditProductPage() {
             className="w-4 h-4 rounded text-primary focus:ring-primary/20 border-gray-300 accent-primary"
             id="is_active"
           />
-          <label htmlFor="is_active" className="text-sm font-semibold text-gray-700">
+          <label htmlFor="is_active" className="text-sm font-semibold text-foreground">
             Active Listing
           </label>
         </div>

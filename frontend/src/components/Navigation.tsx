@@ -21,7 +21,7 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 pt-8 pb-4 px-4 z-50">
+      <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border h-screen fixed left-0 top-0 pt-8 pb-4 px-4 z-50">
         <div className="flex items-center gap-2 px-2 mb-12">
           <img src="/images/logo.png" alt="Fresh Market Logo" className="w-8 h-8 object-contain" />
           <span className="text-xl font-bold text-primary">Fresh Market</span>
@@ -40,7 +40,7 @@ export default function Navigation() {
                 className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive 
                     ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                    : 'text-gray-500 hover:bg-primary-light hover:text-primary'
+                    : 'text-muted hover:bg-primary-light hover:text-primary'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -48,7 +48,7 @@ export default function Navigation() {
                   <span className="font-medium">{item.name}</span>
                 </div>
                 {isCart && cartCount > 0 && (
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-white text-primary' : 'bg-primary text-white'}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-card text-primary' : 'bg-primary text-white'}`}>
                     {cartCount}
                   </span>
                 )}
@@ -62,7 +62,7 @@ export default function Navigation() {
               className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
                 pathname.startsWith('/farmer')
                   ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                  : 'text-gray-500 hover:bg-primary-light hover:text-primary'
+                  : 'text-muted hover:bg-primary-light hover:text-primary'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -78,7 +78,7 @@ export default function Navigation() {
               className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
                 pathname.startsWith('/shop')
                   ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                  : 'text-gray-500 hover:bg-primary-light hover:text-primary'
+                  : 'text-muted hover:bg-primary-light hover:text-primary'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -89,7 +89,7 @@ export default function Navigation() {
           )}
         </nav>
         
-        <div className="mt-auto pt-4 border-t border-gray-100">
+        <div className="mt-auto pt-4 border-t border-border">
           <div className="bg-primary-light rounded-xl p-4 text-center">
             <p className="text-sm font-semibold text-primary mb-2">Are you a Farmer?</p>
             <Link href="/register?role=farmer" className="block w-full bg-primary text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-primary/90 transition-colors">
@@ -100,7 +100,7 @@ export default function Navigation() {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe rounded-t-3xl">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-3 flex justify-between items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe rounded-t-3xl">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;

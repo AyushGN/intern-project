@@ -60,17 +60,17 @@ export default function Explore() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2">
-          <Link href="/" className="md:hidden p-2 -ml-2 text-gray-600">
+          <Link href="/" className="md:hidden p-2 -ml-2 text-muted">
             <ChevronLeft size={24} />
           </Link>
           <h1 className="text-2xl font-bold text-primary">Explore</h1>
         </div>
         
         <div className="flex gap-3">
-          <button className="p-2 rounded-full bg-white border border-gray-200 shadow-sm text-gray-600 hover:text-primary transition-colors">
+          <button className="p-2 rounded-full bg-card border border-border shadow-sm text-muted hover:text-primary transition-colors">
             <Heart size={20} />
           </button>
-          <button className="p-2 rounded-full bg-white border border-gray-200 shadow-sm text-gray-600 hover:text-primary transition-colors">
+          <button className="p-2 rounded-full bg-card border border-border shadow-sm text-muted hover:text-primary transition-colors">
             <Filter size={20} />
           </button>
         </div>
@@ -87,7 +87,7 @@ export default function Explore() {
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-full py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+            className="w-full bg-card border border-border rounded-full py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
           />
         </div>
       </form>
@@ -122,7 +122,7 @@ export default function Explore() {
               />
             ))
           ) : (
-            <p className="text-gray-500 col-span-full text-center py-10">No products found.</p>
+            <p className="text-muted col-span-full text-center py-10">No products found.</p>
           )}
         </div>
       )}
