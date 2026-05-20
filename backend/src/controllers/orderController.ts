@@ -179,9 +179,9 @@ export const getFarmerOrders = async (req: Request, res: Response): Promise<void
 
     const { data, error } = await supabase
       .from('order_items')
-      .select('*, orders(*, users(name, email, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode)), products(name, image_url)')
+      .select('*, orders!inner(*, users(name, email, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode)), products!inner(name, image_url)')
       .eq('products.farmer_id', userId)
-      .order('orders.created_at', { ascending: false });
+      .order('created_at', { foreignTable: 'orders', ascending: false });
 
     if (error) throw error;
 

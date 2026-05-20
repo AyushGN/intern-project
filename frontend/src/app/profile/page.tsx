@@ -210,23 +210,23 @@ export default function ProfilePage() {
 
                   {/* Items */}
                   <div className="space-y-2 mb-4">
-                    {order.order_items.slice(0, 3).map((item, idx) => (
+                    {(order.order_items || []).slice(0, 3).map((item, idx) => (
                       <div key={idx} className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-background rounded-lg overflow-hidden shrink-0">
+                        <div className="w-10 h-10 bg-background rounded-lg overflow-hidden shrink-0 border border-border">
                           <img
                             src={item.products?.image_url || '/images/berries.png'}
-                            alt={item.products?.name}
+                            alt={item.products?.name || 'Product'}
                             className="w-full h-full object-cover"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{item.products?.name}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{item.products?.name || 'Unknown Product'}</p>
                           <p className="text-xs text-muted">Qty: {item.quantity}</p>
                         </div>
                         <p className="text-sm font-semibold text-foreground">₹{item.subtotal}</p>
                       </div>
                     ))}
-                    {order.order_items.length > 3 && (
+                    {(order.order_items || []).length > 3 && (
                       <p className="text-xs text-muted text-center">+{order.order_items.length - 3} more items</p>
                     )}
                   </div>
