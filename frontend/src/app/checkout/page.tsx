@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SimulatedPaymentForm from '@/components/SimulatedPaymentForm';
 
 export default function Checkout() {
   const { cart, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
@@ -35,16 +36,22 @@ export default function Checkout() {
     setShippingDetails({ ...shippingDetails, [e.target.name]: e.target.value });
   };
 
+  const validateShipping = () => {
+    if (!shippingDetails.name || !shippingDetails.phone || !shippingDetails.address || !shippingDetails.city || !shippingDetails.state || !shippingDetails.pincode) {
+      setError('Please fill in all shipping details before proceeding.');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
   const handlePlaceOrder = async () => {
     if (!isAuthenticated) {
       router.push('/login');
       return;
     }
 
-    if (!shippingDetails.name || !shippingDetails.phone || !shippingDetails.address || !shippingDetails.city || !shippingDetails.state || !shippingDetails.pincode) {
-      setError('Please fill in all shipping details');
-      return;
-    }
+    if (!validateShipping()) return;
 
     setSubmitting(true);
     setError('');
@@ -295,27 +302,42 @@ export default function Checkout() {
               </div>
             </div>
           </div>
+          
+          {/* Payment Form Wrapper */}
+          {paymentMethod === 'online' && (
+            <SimulatedPaymentForm 
+              amount={finalTotal} 
+              onSuccess={() => {
+                if (validateShipping()) {
+                  handlePlaceOrder();
+                }
+              }}
+              onError={(msg) => setError(msg)}
+            />
+          )}
         </div>
         
       </div>
 
       {/* Sticky Bottom Action */}
-      <div className="fixed bottom-[72px] md:bottom-8 left-0 md:left-64 right-0 p-4 bg-card/80 backdrop-blur-md border-t border-border md:border-none md:bg-transparent md:flex md:justify-end md:max-w-7xl md:mx-auto z-40">
-        <button
-          onClick={handlePlaceOrder}
-          disabled={submitting || cart.length === 0}
-          className="w-full md:w-auto md:min-w-[300px] bg-primary text-white py-4 md:py-3 rounded-full font-bold text-lg md:text-base shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-        >
-          {submitting ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              Placing Order...
-            </>
-          ) : (
-            'Place Order'
-          )}
-        </button>
-      </div>
+      {paymentMethod === 'cod' && (
+        <div className="fixed bottom-[72px] md:bottom-8 left-0 md:left-64 right-0 p-4 bg-card/80 backdrop-blur-md border-t border-border md:border-none md:bg-transparent md:flex md:justify-end md:max-w-7xl md:mx-auto z-40">
+          <button
+            onClick={handlePlaceOrder}
+            disabled={submitting || cart.length === 0}
+            className="w-full md:w-auto md:min-w-[300px] bg-primary text-white py-4 md:py-3 rounded-full font-bold text-lg md:text-base shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+          >
+            {submitting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Placing Order...
+              </>
+            ) : (
+              'Place Order (COD)'
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
