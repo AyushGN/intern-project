@@ -4,6 +4,7 @@ import { Heart, Star } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
+import { getProductFallbackImage } from '@/utils/fallbackImage';
 
 export interface Product {
   id: string;
@@ -33,7 +34,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="bg-card rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300 border border-border flex flex-col h-full">
         <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-background">
           <img 
-            src={product.image} 
+            src={product.image || getProductFallbackImage(product.name, '')} 
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />

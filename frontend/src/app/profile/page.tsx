@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { getProductFallbackImage } from '@/utils/fallbackImage';
 
 interface Order {
   id: string;
@@ -48,7 +49,7 @@ export default function ProfilePage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/my`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/my-orders`, {
         credentials: 'include',
       });
       const data = await res.json();
@@ -214,7 +215,7 @@ export default function ProfilePage() {
                       <div key={idx} className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-background rounded-lg overflow-hidden shrink-0 border border-border">
                           <img
-                            src={item.products?.image_url || '/images/berries.png'}
+                            src={item.products?.image_url || getProductFallbackImage(item.products?.name || '', '')}
                             alt={item.products?.name || 'Product'}
                             className="w-full h-full object-cover"
                           />

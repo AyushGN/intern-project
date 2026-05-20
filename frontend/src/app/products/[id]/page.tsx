@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Star, MapPin, ShoppingCart, Package, Loader2, Store } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { getProductFallbackImage } from '@/utils/fallbackImage';
 
 interface Product {
   id: string;
@@ -60,7 +61,7 @@ export default function ProductDetailPage() {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_url || '/images/berries.png',
+        image: product.image_url || getProductFallbackImage(product.name, product.category),
       });
     }
     setAdded(true);
@@ -95,7 +96,7 @@ export default function ProductDetailPage() {
         <div className="relative">
           <div className="aspect-square rounded-3xl overflow-hidden bg-background shadow-sm border border-border">
             <img
-              src={product.image_url || '/images/berries.png'}
+              src={product.image_url || getProductFallbackImage(product.name, product.category)}
               alt={product.name}
               className="w-full h-full object-cover"
             />

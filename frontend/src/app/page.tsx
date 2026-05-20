@@ -5,6 +5,7 @@ import CategoryPills from '@/components/CategoryPills';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { getProductFallbackImage } from '@/utils/fallbackImage';
 
 interface Product {
   id: string;
@@ -146,7 +147,7 @@ export default function Home() {
                     price: product.price,
                     rating: 4.5,
                     reviews: 0,
-                    image: product.image_url || '/images/berries.png',
+                    image: product.image_url || getProductFallbackImage(product.name, product.category),
                   }}
                 />
               ))
