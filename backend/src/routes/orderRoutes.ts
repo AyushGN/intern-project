@@ -5,6 +5,7 @@ import {
   getOrderById,
   getFarmerOrders,
   updateOrderStatus,
+  payOrder,
 } from '../controllers/orderController';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware';
 
@@ -16,6 +17,7 @@ router.use(authenticateToken);
 router.post('/', createOrder);
 router.get('/my-orders', getMyOrders);
 router.get('/:id', getOrderById);
+router.patch('/:id/pay', payOrder);
 
 // Farmer/Admin routes
 router.get('/farmer/orders', authorizeRoles('FARMER'), getFarmerOrders);

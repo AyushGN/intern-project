@@ -227,3 +227,49 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+// Pay for an order (consumer)
+export const payOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { id } = req.params;
+    const { payment_status } = req.body;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // Verify the order belongs to the user
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('consumer_id')
+      .eq('id', id)
+      .single();
+
+    if (orderError || !order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    if (order.consumer_id !== userId) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+
+    // Update payment status
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ payment_status })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(200).json({ message: 'Payment status updated', order: data });
+  } catch (error: any) {
+    console.error('Pay Order Error:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
