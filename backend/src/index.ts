@@ -8,7 +8,7 @@ import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import b2bRoutes from './routes/b2bRoutes';
-
+import loyaltyRoutes from './routes/loyaltyRoutes';
 dotenv.config();
 
 const app = express();
@@ -29,6 +29,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/b2b', b2bRoutes);
+app.use('/api', loyaltyRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

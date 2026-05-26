@@ -92,7 +92,7 @@ export default function Navigation() {
         <div className="mt-auto pt-4 border-t border-border">
           <div className="bg-primary-light rounded-xl p-4 text-center">
             <p className="text-sm font-semibold text-primary mb-2">Are you a Farmer?</p>
-            <Link href="/register?role=farmer" className="block w-full bg-primary text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-primary/90 transition-colors">
+            <Link href="/register?role=farmer" className="block w-full bg-primary text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-primary/90 transition-colors relative z-10 cursor-pointer pointer-events-auto">
               Sell Now
             </Link>
           </div>

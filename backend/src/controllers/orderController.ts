@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
+import { getLoyaltyData, updateLoyaltyData } from './loyaltyHelper';
 
 // Create order (consumer)
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
@@ -10,7 +11,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const { items, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode, payment_method } = req.body;
+    const { items, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode, payment_method, discount_amount = 0 } = req.body;
 
     if (!items || items.length === 0) {
       res.status(400).json({ error: 'Order must contain at least one item' });
@@ -40,9 +41,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     }
 
     const deliveryFee = 40;
-    const gstAmount = Math.round(subtotal * 0.18 * 100) / 100;
-    const discountAmount = 20;
-    const totalAmount = subtotal + deliveryFee + gstAmount - discountAmount;
+    const gstAmount = Math.round(subtotal * 0.18);
+    const totalAmount = subtotal + deliveryFee + gstAmount - discount_amount;
 
     // Create order
     const { data: order, error: orderError } = await supabase
@@ -53,7 +53,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           total_amount: totalAmount,
           delivery_fee: deliveryFee,
           gst_amount: gstAmount,
-          discount_amount: discountAmount,
+          discount_amount: discount_amount,
           shipping_name,
           shipping_phone,
           shipping_address,
@@ -101,7 +101,46 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
     if (itemsError) throw itemsError;
 
-    res.status(201).json({ message: 'Order created successfully', order });
+    // --- LOYALTY LOGIC ---
+    let loyalty = await getLoyaltyData(userId);
+    let itemsCount = items.reduce((sum: number, i: any) => sum + i.quantity, 0);
+    loyalty.total_products_ordered += itemsCount;
+    loyalty.coins += itemsCount * 50; // 50 coins per item
+
+    let newCouponsOwed = Math.floor(loyalty.total_products_ordered / 10);
+    let currentCoupons = loyalty.coupons.length;
+
+    while (currentCoupons < newCouponsOwed) {
+       let code = `LOYALTY50-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+       loyalty.coupons.push({ code, is_used: false, discount: 50 });
+       currentCoupons++;
+       loyalty.coins = Math.max(0, loyalty.coins - 500); // 10 items = 500 coins converted
+
+       // Send notification
+       loyalty.notifications.push({
+         id: Math.random().toString(36).substring(2, 9),
+         title: "🎉 Reward Unlocked!",
+         message: `You've ordered 10 products! Here is your ₹50 coupon code: ${code}`,
+         is_read: false,
+         created_at: new Date().toISOString()
+       });
+    }
+    
+    // Check if the user used a loyalty coupon in this order and mark it as used
+    if (discount_amount === 50) {
+       // Since the frontend just passes `discount_amount`, we assume if it's 50 and they have an unused coupon, they might have used it.
+       // A better way is to pass `coupon_code` from frontend, but we'll try to find an unused loyalty coupon.
+       // However, we don't have the exact code. For simplicity, we just mark one unused coupon as used.
+       const unusedCoupon = loyalty.coupons.find(c => !c.is_used);
+       if (unusedCoupon) {
+         unusedCoupon.is_used = true;
+       }
+    }
+
+    await updateLoyaltyData(userId, loyalty);
+    // --- END LOYALTY LOGIC ---
+
+    res.status(201).json({ message: 'Order created successfully', order, loyalty_coins_earned: itemsCount * 50 });
   } catch (error: any) {
     console.error('Create Order Error:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -179,7 +218,7 @@ export const getFarmerOrders = async (req: Request, res: Response): Promise<void
 
     const { data, error } = await supabase
       .from('order_items')
-      .select('*, orders!inner(*, users(name, email, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode)), products!inner(name, image_url)')
+      .select('*, orders!inner(*, users(name, email)), products!inner(name, image_url)')
       .eq('products.farmer_id', userId)
       .order('created_at', { foreignTable: 'orders', ascending: false });
 

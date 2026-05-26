@@ -24,12 +24,75 @@ export default function Checkout() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [isCouponOpen, setIsCouponOpen] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
 
   const originalPrice = cartTotal;
   const delivery = originalPrice > 0 ? 40 : 0;
   const gst = originalPrice > 0 ? Math.round(originalPrice * 0.18) : 0;
-  const discount = originalPrice > 0 ? 20 : 0;
+  
+  // Calculate discount based on applied coupon
+  let discount = 0;
+  if (originalPrice > 0) {
+    if (appliedCoupon) {
+      discount = appliedCoupon.discountAmount;
+    } else {
+      // Default small discount or no discount
+      discount = 0;
+    }
+  }
+  
   const finalTotal = originalPrice > 0 ? originalPrice + delivery + gst - discount : 0;
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    
+    // First check hardcoded standard coupons
+    if (code === 'WELCOME50') {
+      setAppliedCoupon({ code, discountAmount: 50 });
+      setError('');
+      setIsCouponOpen(false);
+      setCouponInput('');
+      return;
+    } else if (code === 'FRESH100' && originalPrice >= 500) {
+      setAppliedCoupon({ code, discountAmount: 100 });
+      setError('');
+      setIsCouponOpen(false);
+      setCouponInput('');
+      return;
+    } else if (code === 'FRESH100') {
+      setError('FRESH100 requires a minimum order of ₹500');
+      return;
+    }
+    
+    // Check loyalty dynamic coupons from backend
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupons/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.discountAmount) {
+        setAppliedCoupon({ code, discountAmount: data.discountAmount });
+        setError('');
+        setIsCouponOpen(false);
+        setCouponInput('');
+      } else {
+        setError(data.error || 'Invalid coupon code');
+      }
+    } catch (e) {
+      setError('Failed to validate coupon');
+    }
+  };
+  
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingDetails({ ...shippingDetails, [e.target.name]: e.target.value });
@@ -74,6 +137,7 @@ export default function Checkout() {
           shipping_state: shippingDetails.state,
           shipping_pincode: shippingDetails.pincode,
           payment_method: paymentMethod,
+          discount_amount: discount,
         }),
       });
 
@@ -83,11 +147,11 @@ export default function Checkout() {
         throw new Error(data.error || 'Failed to place order');
       }
 
-      clearCart();
-      
       if (paymentMethod === 'online' && data.order?.id) {
+        // Do not clear cart yet, wait for successful payment
         router.push(`/payment/${data.order.id}`);
       } else {
+        clearCart();
         router.push('/order-success');
       }
     } catch (err: any) {
@@ -243,6 +307,7 @@ export default function Checkout() {
               <h4 className="text-xs font-semibold text-muted mb-2">Payment Method</h4>
               <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={() => setPaymentMethod('cod')}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                     paymentMethod === 'cod'
@@ -253,6 +318,7 @@ export default function Checkout() {
                   Cash on Delivery
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPaymentMethod('online')}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                     paymentMethod === 'online'
@@ -270,12 +336,54 @@ export default function Checkout() {
         {/* Right Column (Invoice) */}
         <div className="md:col-span-5 space-y-6">
           {/* Coupon */}
-          <div className="bg-card p-4 rounded-2xl shadow-sm border border-border flex items-center justify-between cursor-pointer hover:border-primary/30 transition-colors">
-            <div className="flex items-center gap-3 text-primary font-semibold">
-              <Tag size={20} />
-              <span>Apply Coupon</span>
-            </div>
-            <ChevronLeft size={20} className="text-gray-400 rotate-180" />
+          <div className="bg-card p-4 rounded-2xl shadow-sm border border-border transition-colors">
+            {!appliedCoupon ? (
+              <>
+                <div 
+                  className="flex items-center justify-between cursor-pointer group"
+                  onClick={() => setIsCouponOpen(!isCouponOpen)}
+                >
+                  <div className="flex items-center gap-3 text-primary font-semibold">
+                    <Tag size={20} />
+                    <span>Apply Coupon</span>
+                  </div>
+                  <ChevronLeft size={20} className={`text-gray-400 transition-transform ${isCouponOpen ? '-rotate-90' : 'rotate-180'} group-hover:text-primary`} />
+                </div>
+                
+                {isCouponOpen && (
+                  <div className="mt-4 pt-4 border-t border-border flex gap-2">
+                    <input 
+                      type="text" 
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      placeholder="Enter code (e.g. WELCOME50)"
+                      className="flex-1 bg-background border border-border rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
+                    />
+                    <button 
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-green-600 font-semibold">
+                  <Tag size={20} />
+                  <span>Coupon Applied: {appliedCoupon.code}</span>
+                </div>
+                <button 
+                  type="button"
+                  onClick={removeCoupon}
+                  className="text-xs text-red-500 font-bold hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Invoice */}
@@ -312,11 +420,17 @@ export default function Checkout() {
       </div>
 
       {/* Sticky Bottom Action */}
-      <div className="fixed bottom-[72px] md:bottom-8 left-0 md:left-64 right-0 p-4 md:border-none md:bg-transparent md:flex md:justify-end md:max-w-7xl md:mx-auto z-40">
+      <div className="fixed bottom-[72px] md:bottom-8 left-0 md:left-64 right-0 p-4 md:border-none md:bg-transparent md:flex md:flex-col md:items-end md:max-w-7xl md:mx-auto z-40 pointer-events-none">
+        {error && (
+          <div className="w-full md:w-auto md:min-w-[300px] mb-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl p-3 text-center font-medium shadow-md pointer-events-auto">
+            {error}
+          </div>
+        )}
         <button
+          type="button"
           onClick={handlePlaceOrder}
           disabled={submitting || cart.length === 0}
-          className="w-full md:w-auto md:min-w-[300px] bg-primary text-white py-4 md:py-3 rounded-full font-bold text-lg md:text-base shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+          className="pointer-events-auto w-full md:w-auto md:min-w-[300px] bg-primary text-white py-4 md:py-3 rounded-full font-bold text-lg md:text-base shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center gap-2"
         >
           {submitting ? (
             <>

@@ -6,6 +6,8 @@ import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { getProductFallbackImage } from '@/utils/fallbackImage';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface Product {
   id: string;
@@ -17,14 +19,39 @@ interface Product {
 }
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [loyalty, setLoyalty] = useState<{coins: number; notifications: any[]}>({ coins: 0, notifications: [] });
 
   useEffect(() => {
     fetchProducts();
   }, [activeCategory]);
+
+  useEffect(() => {
+    if (isAuthenticated) fetchLoyalty();
+  }, [isAuthenticated]);
+
+  const fetchLoyalty = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/loyalty`, { credentials: 'include' });
+      const data = await res.json();
+      if (res.ok) setLoyalty(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const markRead = async (id: string) => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
+      setLoyalty({ ...loyalty, notifications: loyalty.notifications.map(n => n.id === id ? { ...n, is_read: true } : n) });
+    } catch (e) { }
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -61,11 +88,40 @@ export default function Home() {
         <div className="flex gap-3">
           <div className="flex items-center gap-1 bg-primary-light px-3 py-1 rounded-full border border-primary/20">
             <Coins size={14} className="text-primary" />
-            <span className="text-xs font-bold text-primary">50</span>
+            <span className="text-xs font-bold text-primary">{loyalty.coins}</span>
           </div>
-          <button className="p-2 rounded-full bg-background border border-border">
-            <Bell size={18} className="text-muted" />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className={`p-2 rounded-full border transition-colors relative ${showNotifications ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-background border-border text-muted hover:bg-card'}`}
+            >
+              <Bell size={18} />
+              {loyalty.notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background"></span>
+              )}
+            </button>
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-72 bg-card rounded-2xl shadow-lg border border-border p-4 z-50 animate-in fade-in slide-in-from-top-2 max-h-[70vh] overflow-y-auto">
+                <h3 className="font-bold text-foreground mb-3 text-sm border-b border-border pb-2">Notifications</h3>
+                {loyalty.notifications.length === 0 ? (
+                  <div className="text-center py-4">
+                    <Bell size={24} className="mx-auto text-gray-300 mb-2 opacity-50" />
+                    <p className="text-xs text-muted">You're all caught up!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {loyalty.notifications.map(n => (
+                      <div key={n.id} className={`p-3 rounded-xl border ${n.is_read ? 'bg-background border-border' : 'bg-blue-50 border-blue-100'} text-left relative`}>
+                        {!n.is_read && <button onClick={() => markRead(n.id)} className="absolute top-2 right-2 text-xs text-blue-600 font-bold hover:underline">Mark read</button>}
+                        <p className={`text-sm font-semibold ${n.is_read ? 'text-foreground' : 'text-blue-800'}`}>{n.title}</p>
+                        <p className={`text-xs mt-1 ${n.is_read ? 'text-muted' : 'text-blue-600'}`}>{n.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -73,11 +129,40 @@ export default function Home() {
       <div className="hidden md:flex justify-end items-center mb-8 gap-4">
          <div className="flex items-center gap-2 bg-primary-light px-4 py-2 rounded-full border border-primary/20">
             <Coins size={16} className="text-primary" />
-            <span className="font-bold text-primary">50 Coins</span>
+            <span className="font-bold text-primary">{loyalty.coins} Coins</span>
           </div>
-          <button className="p-2.5 rounded-full bg-card border border-border hover:bg-background transition-colors shadow-sm">
-            <Bell size={20} className="text-muted" />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className={`p-2.5 rounded-full border transition-colors shadow-sm relative ${showNotifications ? 'bg-primary border-primary text-white' : 'bg-card border-border text-muted hover:bg-background'}`}
+            >
+              <Bell size={20} />
+              {loyalty.notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-background"></span>
+              )}
+            </button>
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-card rounded-2xl shadow-xl border border-border p-5 z-50 animate-in fade-in slide-in-from-top-2 max-h-[70vh] overflow-y-auto">
+                <h3 className="font-bold text-foreground mb-4 text-sm border-b border-border pb-2">Notifications</h3>
+                {loyalty.notifications.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Bell size={28} className="mx-auto text-gray-300 mb-3 opacity-50" />
+                    <p className="text-sm font-medium text-foreground">You're all caught up!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {loyalty.notifications.map(n => (
+                      <div key={n.id} className={`p-4 rounded-xl border ${n.is_read ? 'bg-background border-border' : 'bg-blue-50 border-blue-100'} text-left relative`}>
+                        {!n.is_read && <button onClick={() => markRead(n.id)} className="absolute top-2 right-3 text-xs text-blue-600 font-bold hover:underline">Mark read</button>}
+                        <p className={`text-sm font-semibold ${n.is_read ? 'text-foreground' : 'text-blue-800'}`}>{n.title}</p>
+                        <p className={`text-xs mt-1 leading-relaxed ${n.is_read ? 'text-muted' : 'text-blue-600'}`}>{n.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
       </div>
 
       {/* Search Bar */}
@@ -106,10 +191,10 @@ export default function Home() {
           alt="Are you a Farmer? Sell your products here" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-center items-start w-2/3">
+        <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-center items-start w-2/3 pointer-events-none">
           <h2 className="text-xl md:text-3xl font-bold text-white mb-2 drop-shadow-md">Are you a <span className="text-primary-light">Farmer ?</span></h2>
           <p className="text-white font-medium text-sm md:text-base mb-4 drop-shadow-md">Sell your <span className="italic">Products here</span></p>
-          <Link href="/register?role=farmer" className="bg-card text-primary px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold shadow-md hover:bg-border transition-colors inline-block text-center">
+          <Link href="/register?role=farmer" className="bg-card text-primary px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold shadow-md hover:bg-border transition-colors inline-block text-center relative z-10 pointer-events-auto cursor-pointer">
             Get Started
           </Link>
         </div>

@@ -3,6 +3,7 @@
 import { Heart, Star } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import Link from 'next/link';
 import { getProductFallbackImage } from '@/utils/fallbackImage';
 
@@ -17,7 +18,8 @@ export interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const [isLiked, setIsLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isLiked = isFavorite(product.id);
   const [added, setAdded] = useState(false);
   const { addToCart } = useCart();
 
@@ -39,7 +41,7 @@ export default function ProductCard({ product }: { product: Product }) {
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />
           <button 
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLiked(!isLiked); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(product); }}
             className="absolute top-2 right-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-gray-400 hover:text-red-500 transition-colors"
           >
             <Heart size={18} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "text-red-500" : ""} />

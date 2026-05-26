@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Package, Plus, Edit2, Trash2, Loader2, TrendingUp, ShoppingCart, DollarSign, Clock, CheckCircle, Truck, MapPin, MessageSquare } from 'lucide-react';
+import { Package, Plus, Edit2, Trash2, Loader2, TrendingUp, ShoppingCart, DollarSign, Clock, CheckCircle, Truck, MapPin, MessageSquare, Bell } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -91,6 +91,34 @@ export default function FarmerDashboard() {
     }
   };
 
+  const handleUpdateOrderStatus = async (orderId: string, status: 'confirmed' | 'shipped' | 'delivered') => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        // Optimistically update status locally in nested data structure
+        setOrders(prev => prev.map(item => {
+          if (item.orders?.id === orderId) {
+            return {
+              ...item,
+              orders: {
+                ...item.orders,
+                status
+              }
+            };
+          }
+          return item;
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+    }
+  };
+
   const handleUpdateInquiryStatus = async (inquiryId: string, status: 'accepted' | 'rejected' | 'completed') => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/b2b/inquiries/${inquiryId}`, {
@@ -138,18 +166,55 @@ export default function FarmerDashboard() {
   const totalProducts = products.length;
   const activeProducts = products.filter(p => p.is_active).length;
   const totalStock = products.reduce((sum, p) => sum + p.stock_quantity, 0);
+  const pendingOrdersCount = orders.filter(o => o.orders?.status === 'pending').length;
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto w-full pt-20 md:pt-10">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
-        <Link
-          href="/farmer/add-product"
-          className="bg-primary text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
-        >
-          <Plus size={18} />
-          Add Product
-        </Link>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <button 
+              onClick={() => {
+                const el = document.getElementById('farmer-notifications');
+                if (el) el.classList.toggle('hidden');
+              }}
+              className="p-3 rounded-full bg-card border border-border hover:bg-background transition-colors relative shadow-sm"
+            >
+              <Bell size={20} className="text-muted" />
+              {pendingOrdersCount > 0 && (
+                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-card"></span>
+              )}
+            </button>
+            <div id="farmer-notifications" className="hidden absolute right-0 top-full mt-2 w-72 bg-card rounded-2xl shadow-xl border border-border p-4 z-50 animate-in fade-in slide-in-from-top-2">
+              <h3 className="font-bold text-foreground mb-3 text-sm border-b border-border pb-2">Notifications</h3>
+              {pendingOrdersCount > 0 ? (
+                <div className="text-left space-y-3">
+                  <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl">
+                    <p className="text-sm font-semibold text-blue-800">New Orders Received!</p>
+                    <p className="text-xs text-blue-600 mt-1">You have {pendingOrdersCount} order(s) waiting to be accepted.</p>
+                    <button onClick={() => {
+                      setActiveTab('orders');
+                      document.getElementById('farmer-notifications')?.classList.add('hidden');
+                    }} className="mt-2 text-xs font-bold text-blue-700 hover:underline">View Orders</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <Bell size={28} className="mx-auto text-gray-300 mb-3 opacity-50" />
+                  <p className="text-sm font-medium text-foreground">You're all caught up!</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <Link
+            href="/farmer/add-product"
+            className="bg-primary text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
+          >
+            <Plus size={18} />
+            Add Product
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -347,11 +412,36 @@ export default function FarmerDashboard() {
                     {item.orders?.status}
                   </span>
                 </div>
-                <div className="bg-background rounded-xl p-3 text-sm">
+                <div className="bg-background rounded-xl p-3 text-sm mb-3">
                   <p className="font-medium text-foreground">{item.orders?.users?.name || item.orders?.shipping_name}</p>
                   <p className="text-muted text-xs mt-0.5">{item.orders?.shipping_address}, {item.orders?.shipping_city}</p>
                   <p className="text-gray-400 text-xs">{item.orders?.users?.email}</p>
                 </div>
+                
+                {item.orders?.status === 'pending' && (
+                  <button 
+                    onClick={() => handleUpdateOrderStatus(item.orders.id, 'confirmed')}
+                    className="w-full bg-blue-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Accept Order
+                  </button>
+                )}
+                {item.orders?.status === 'confirmed' && (
+                  <button 
+                    onClick={() => handleUpdateOrderStatus(item.orders.id, 'shipped')}
+                    className="w-full bg-purple-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-purple-700 transition-colors"
+                  >
+                    Mark as Shipped
+                  </button>
+                )}
+                {item.orders?.status === 'shipped' && (
+                  <button 
+                    onClick={() => handleUpdateOrderStatus(item.orders.id, 'delivered')}
+                    className="w-full bg-green-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-green-700 transition-colors"
+                  >
+                    Mark as Delivered
+                  </button>
+                )}
               </div>
             ))
           )}

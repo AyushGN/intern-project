@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getProductFallbackImage } from '@/utils/fallbackImage';
+import { useFavorites } from '@/context/FavoritesContext';
+import ProductCard from '@/components/ProductCard';
+import { useTheme } from 'next-themes';
 
 interface Order {
   id: string;
@@ -30,10 +33,13 @@ const STATUS_CONFIG: Record<string, { label: string; icon: any; color: string; b
 
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { favorites } = useFavorites();
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'favorites' | 'settings'>('overview');
+  const [loyalty, setLoyalty] = useState<{coins: number; total_products_ordered: number}>({ coins: 0, total_products_ordered: 0 });
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -44,8 +50,19 @@ export default function ProfilePage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchOrders();
+      fetchLoyalty();
     }
   }, [isAuthenticated, user]);
+
+  const fetchLoyalty = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/loyalty`, { credentials: 'include' });
+      const data = await res.json();
+      if (res.ok) setLoyalty(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -99,12 +116,34 @@ export default function ProfilePage() {
               <MapPin size={12} /> {user.location}
             </p>
           )}
-          {user.store_name && (
+          {user.store_name && user.role !== 'CONSUMER' && (
             <p className="text-gray-400 text-sm flex items-center gap-1 justify-center md:justify-start mt-1">
               <Store size={12} /> {user.store_name}
             </p>
           )}
         </div>
+        
+        {user.role === 'CONSUMER' && (
+          <div className="md:border-l border-border md:pl-6 pt-4 md:pt-0 w-full md:w-auto">
+            <div className="bg-primary/5 rounded-2xl p-4 border border-primary/20">
+              <p className="text-sm text-primary font-bold mb-2">Loyalty Rewards</p>
+              <div className="flex items-center gap-4 mb-3">
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-foreground">{loyalty.coins}</span>
+                  <span className="text-xs text-muted">Coins Earned</span>
+                </div>
+                <div className="h-8 w-px bg-border"></div>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-foreground">{loyalty.total_products_ordered % 10}<span className="text-sm text-muted">/10</span></span>
+                  <span className="text-xs text-muted">Next Coupon</span>
+                </div>
+              </div>
+              <div className="w-full bg-border rounded-full h-1.5">
+                <div className="bg-primary h-1.5 rounded-full" style={{ width: `${(loyalty.total_products_ordered % 10) * 10}%` }}></div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -120,6 +159,12 @@ export default function ProfilePage() {
           className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'orders' ? 'bg-card text-foreground shadow-sm' : 'text-muted'}`}
         >
           My Orders {orders.length > 0 && <span className="ml-1 text-xs bg-primary text-white px-1.5 py-0.5 rounded-full">{orders.length}</span>}
+        </button>
+        <button
+          onClick={() => setActiveTab('favorites')}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'favorites' ? 'bg-card text-foreground shadow-sm' : 'text-muted'}`}
+        >
+          Favorites {favorites.length > 0 && <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">{favorites.length}</span>}
         </button>
       </div>
 
@@ -140,18 +185,24 @@ export default function ProfilePage() {
             <ChevronRight size={18} className="text-gray-400" />
           </button>
 
-          <div className="bg-card rounded-2xl p-5 shadow-sm border border-border hover:shadow-md transition-shadow flex items-center gap-4 cursor-pointer">
+          <button
+            onClick={() => setActiveTab('favorites')}
+            className="bg-card rounded-2xl p-5 shadow-sm border border-border hover:shadow-md transition-shadow flex items-center gap-4 text-left w-full"
+          >
             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shrink-0">
               <Heart size={22} />
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-foreground">Favorites</h3>
-              <p className="text-sm text-muted">Your saved products</p>
+              <p className="text-sm text-muted">{favorites.length} saved products</p>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
-          </div>
+          </button>
 
-          <div className="bg-card rounded-2xl p-5 shadow-sm border border-border hover:shadow-md transition-shadow flex items-center gap-4 cursor-pointer">
+          <button
+            onClick={() => setActiveTab('settings')}
+            className="bg-card rounded-2xl p-5 shadow-sm border border-border hover:shadow-md transition-shadow flex items-center gap-4 w-full text-left"
+          >
             <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center text-muted shrink-0">
               <Settings size={22} />
             </div>
@@ -160,7 +211,7 @@ export default function ProfilePage() {
               <p className="text-sm text-muted">Account preferences</p>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
-          </div>
+          </button>
 
           <button
             onClick={logout}
@@ -236,10 +287,108 @@ export default function ProfilePage() {
                     <p className="text-sm text-muted capitalize">{order.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
                     <p className="font-bold text-foreground">₹{order.total_amount}</p>
                   </div>
+                  
+                  <div className="pt-3 mt-3 border-t border-border/50">
+                    <Link 
+                      href={`/orders/${order.id}/track`}
+                      className="block w-full text-center bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors font-bold py-2 rounded-xl text-sm"
+                    >
+                      Track Order
+                    </Link>
+                  </div>
                 </div>
               );
             })
           )}
+        </div>
+      )}
+
+      {/* Favorites Tab */}
+      {activeTab === 'favorites' && (
+        <div className="space-y-4">
+          {favorites.length === 0 ? (
+            <div className="bg-card rounded-2xl p-12 shadow-sm border border-border text-center">
+              <Heart size={48} className="mx-auto text-gray-300 mb-4" />
+              <p className="text-muted mb-4 font-medium">No saved favorites yet</p>
+              <Link href="/explore" className="text-primary font-bold hover:underline text-sm">
+                Explore Products
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {favorites.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Settings Tab */}
+      {activeTab === 'settings' && (
+        <div className="space-y-4">
+          <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+            <h3 className="text-lg font-bold text-foreground mb-4 border-b border-border pb-2">Appearance</h3>
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <p className="font-semibold text-foreground">Theme Preference</p>
+                <p className="text-sm text-muted">Select your preferred color scheme</p>
+              </div>
+              <div className="flex bg-background border border-border rounded-xl p-1">
+                <button
+                  onClick={() => setTheme('light')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${theme === 'light' ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-foreground'}`}
+                >
+                  Light
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${theme === 'dark' ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-foreground'}`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => setTheme('system')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${theme === 'system' ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-foreground'}`}
+                >
+                  System
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+            <h3 className="text-lg font-bold text-foreground mb-4 border-b border-border pb-2">Account Settings</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <p className="font-semibold text-foreground">Email Notifications</p>
+                  <p className="text-sm text-muted">Receive order updates via email</p>
+                </div>
+                <div className="w-11 h-6 bg-primary rounded-full relative cursor-pointer">
+                  <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-2 border-t border-border/50">
+                <div>
+                  <p className="font-semibold text-foreground">SMS Notifications</p>
+                  <p className="text-sm text-muted">Receive delivery updates via SMS</p>
+                </div>
+                <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 rounded-full relative cursor-pointer">
+                  <div className="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 shadow-sm"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className="text-primary font-semibold hover:underline text-sm"
+            >
+              &larr; Back to Overview
+            </button>
+          </div>
         </div>
       )}
     </div>

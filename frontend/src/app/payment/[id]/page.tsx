@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2, ArrowLeft, CreditCard, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 export default function PaymentPage() {
   const params = useParams();
   const router = useRouter();
+  const { clearCart } = useCart();
   const orderId = params.id as string;
 
   const [order, setOrder] = useState<any>(null);
@@ -62,6 +64,7 @@ export default function PaymentPage() {
         });
 
         if (res.ok) {
+          clearCart();
           router.push('/order-success');
         } else {
           const data = await res.json();
